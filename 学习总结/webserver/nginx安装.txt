@@ -1,0 +1,82 @@
+﻿$ wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.38.tar.gz
+$ tar -zxf pcre-8.38.tar.gz
+$ cd pcre-8.38
+$ ./configure
+$ make
+$ sudo make install
+
+$ wget http://zlib.net/zlib-1.2.8.tar.gz
+$ tar -zxf zlib-1.2.8.tar.gz
+$ cd zlib-1.2.8
+$ ./configure
+$ make
+$ sudo make install
+
+$ wget http://www.openssl.org/source/openssl-1.0.2f.tar.gz
+$ tar -zxf openssl-1.0.2f.tar.gz
+$ cd openssl-1.0.2f
+$ ./config --prefix=/usr
+$ make
+$ sudo make install
+
+$ wget http://nginx.org/download/nginx-1.10.1.tar.gz
+$ tar zxf nginx-1.10.1.tar.gz
+$ cd nginx-1.10.1
+$ ./configure --prefix=/usr/local/nginx --sbin-path=/usr/local/nginx/nginx --conf-path=/usr/local/nginx/conf/nginx.conf --pid-path=/usr/local/nginx/logs/nginx.pid --with-pcre=../pcre-8.39 --with-zlib=../zlib-1.2.8 --with-http_ssl_module --with-stream --with-mail=dynamic --with-http_stub_status_module --with-http_sub_module
+$ make
+$ make install
+
+
+
+
+安装htpasswd
+yum install -y httpd-tools
+
+htpasswd -c /usr/local/nginx/.htpasswd nginx
+
+cat /usr/local/nginx/.htpasswd
+
+. . .
+server {
+    listen       80 default_server;
+    listen       [::]:80 default_server;
+    server_name  _;
+    root         /usr/share/nginx/html;
+
+    auth_basic "Private Property";
+    auth_basic_user_file /usr/local/nginx/.htpasswd;
+. . .
+
+密钥生成
+1、在ssl文件夹下进入certs文件夹
+2、初始化文件
+touch index.txt serial
+echo 01 > serial
+3、进入ssl文件夹。生成根密钥
+openssl genrsa -out private/cakey.pem 2048
+4、生成根证书
+openssl req -new -x509 -key private/cakey.pem -out cacert.pem
+
+---------------------------------
+Country Name (2 letter code) [AU]:CN ← 国家代号，中国输入CN 
+State or Province Name (full name) [Some-State]:BeiJing ← 省的全名，拼音 
+Locality Name (eg, city) []:BeiJing ← 市的全名，拼音 
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:MyCompany Corp. ← 公司英文名 
+Organizational Unit Name (eg, section) []: ← 可以不输入 
+Common Name (eg, YOUR name) []: ← 这里是你要申请的网站的域名
+Email Address []:admin@mycompany.com ← 电子邮箱，可随意填
+
+Please enter the following ‘extra’ attributes 
+to be sent with your certificate request 
+A challenge password []: ← 可以不输入 
+An optional company name []: ← 可以不输入
+---------------------------------
+
+5、生成服务密钥
+openssl genrsa -out nginx.key 2048
+6、生成证书签署请求
+openssl req -new -key nginx.key -out nginx.csr
+7、私有CA根据请求来签署证书
+openssl x509 -req -in nginx.csr -CA cacert.pem -CAkey private/cakey.pem -CAcreateserial -out nginx.crt -days 36500
+
+
