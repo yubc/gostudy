@@ -1,15 +1,16 @@
-worker_processes  auto;
+#nginx进程数，建议设置为等于CPU总核心数。
+worker_processes 8;
 #更改worker进程的最大打开文件数限制
 worker_rlimit_nofile 65535;
 #全局错误日志定义类型，多个等级可并存，[ debug | info | notice | warn | error | crit ]，从左到右错误信息越来越少；此指令可以在全局、http、server、location块中配置）
-error_log  logs/error.log  notice;
-error_log  logs/error.log  info;
+error_log  logs/error.log  error;
+#error_log  logs/error.log  info;
 #Nginx进程文件
 pid        logs/nginx.pid;
 
 
 events {
-    #参考事件模型，use [ kqueue | rtsig | epoll | /dev/poll | select | poll ]; epoll模型是Linux 2.6以上版本内核中的高性能网络I/O模型，如果跑在FreeBSD上面，就用kqueue模型。
+    #参考事件模型，use [ kqueue | rtsig | epoll | /dev/poll | select | poll ]; epoll模型是Linux 2.6以上版本内核中的高性能网络I/O模型，如果跑在FreeBSD上面，就用kqueue模型。编译时会根据系统自动选择
     use epoll;
     #nginx收到一个新连接通知后接受尽可能多的连接
     multi_accept on; 
@@ -98,6 +99,7 @@ http {
             proxy_pass http://rrms.com;  # 指向上面设置反向代理转发的服务器
             proxy_set_header   Host   $host;
             proxy_set_header   X-Real-IP $remote_addr;
+	    #后端的Web服务器可以通过X-Forwarded-For获取用户真实IP
             proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
 	}
 	location /status {
