@@ -201,9 +201,9 @@ cp /usr/local/mysql/support-files/mysql.server /etc/rc.d/init.d/mysqld
 
 配置守护进程
 
-chkconfig –add mysqld
+chkconfig –-add mysqld
 
-chkconfig –level 35 mysqld on
+chkconfig –-level 35 mysqld on
 
 7. 启动和关闭msyql 
 
