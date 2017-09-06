@@ -26,7 +26,7 @@ useradd -r -s /sbin/nologin -g mysql mysql -d /usr/local/mysql
 
 3.3 改变目录所有者
 
-chown -R mysql .
+chown -R mysql /usr/local/mysql
 (后面的点表示所在目录)
 
 3.4 配置参数设置
@@ -56,7 +56,7 @@ datadir=/usr/local/mysql/data/mysql
 3.6 启动mysql
 
 重新对目录所有者设置
-chown -R mysql .
+chown -R mysql /usr/local/mysql
 
 执行 bin/mysqld_safe --user=mysql &
 
